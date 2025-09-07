@@ -1,56 +1,106 @@
-const gameboard = (function () {
-    let squares = [];
+function createGame() {
+    const gameboard = (function () {
+        const squares = [];
 
-    const getSquares = () => squares;
-    const addSquare = (square) => squares.push(square);
+        const createGameSquare = () => {
+            let state = "";
 
-    return {getSquares, addSquare};
-})();
+            const getState = () => state;
+            const setState = (token) => state = token;
+            return {getState, setState};
+        }
 
-function createGameSquare() {
-    let isUsed = false;
-    return {isUsed};
-}
-
-function createPlayer(id) {
-    let occupiedSquares = [];
-
-    const getOccupiedSquares = () => occupiedSquares;
-    const addOccupiedSquare = (squareId) => occupiedSquares.push(squareId);
-
-    return {id, getOccupiedSquares, addOccupiedSquare};
-}
-
-const game = (function () {
-    const createSquares = () => {
         for (let i = 0; i < 9; i++) {
-            const square = createGameSquare();
-            gameboard.addSquare(square);
+            squares.push(createGameSquare());
         }
-    };
 
-    let roundCounter = 0;
-    const getRoundCounter = () => roundCounter;
-    const increaseRoundCounter = () => roundCounter++;
-    const checkForTie = () => {
-        if (getRoundCounter() === 9) {
-            return true;
-        } else {
-            return false;
+        const getSquares = () => squares;
+
+        return {getSquares};
+    })();
+
+    const playerController = (function () {
+        const createPlayer = (name, token) => {
+            const occupiedSquares = [];
+
+            const getOccupiedSquares = () => occupiedSquares;
+            const addOccupiedSquare = (squareIndex) => {
+                if (gameboard.getSquares()[squareIndex].getState() === "") {
+                    occupiedSquares.push(squareIndex);
+                    gameboard.getSquares()[squareIndex].setState(token);
+                    return 1;
+                } else {
+                    console.log(`${name}: square of index ${squareIndex} is already occupied`);
+                    return 0;
+                }
+            };
+
+            return {name, token, getOccupiedSquares, addOccupiedSquare};
         }
-    };
 
-    const winCombinations = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-    const checkForWin = (player) => {
-        const playerSquares = player.getOccupiedSquares();
+        const players = [createPlayer("Player 1", "X"), createPlayer("Player 2", "0")];
 
-        winCombinations.forEach((combination) => {
-            if (combination.every((square) => playerSquares.includes(square))) {
-                return true;
+        const getPlayers = () => players;
+
+        return {getPlayers};
+    })();
+
+    const gameController = (function () {
+        let currentPlayer = playerController.getPlayers()[0];
+        const getCurrentPlayer = () => currentPlayer;
+        const changeCurrentPlayer = () => {
+            if (currentPlayer === playerController.getPlayers()[0]) {
+                currentPlayer = playerController.getPlayers()[1];
+            } else {
+                currentPlayer = playerController.getPlayers()[0];
             }
-        });
-        return false;
-    };
+        }
 
-    return {createSquares, getRoundCounter, increaseRoundCounter, checkForTie, checkForWin};
-})();
+        let turnCounter = 0;
+        const getTurnCounter = () => turnCounter;
+        const increaseTurnCounter = () => turnCounter++;
+
+        const checkForTie = () => {
+            if (getTurnCounter() === 9) {
+                return true;
+            } else {
+                return false;
+            }
+        };
+
+        const winCombinations = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+        const checkForWin = () => {
+            const playerSquares = currentPlayer.getOccupiedSquares();
+
+            winCombinations.forEach((combination) => {
+                if (combination.every((square) => playerSquares.includes(square))) {
+                    return true;
+                }
+            });
+            return false;
+        };
+
+        const playRound = (squareIndex) => {
+            if (!currentPlayer.addOccupiedSquare(squareIndex)) return;
+            increaseTurnCounter();
+
+            if (checkForWin()) {
+                console.log(`${currentPlayer.name} won!`);
+            } else if (checkForTie()) {
+                console.log("game is tied");
+            }
+            
+            changeCurrentPlayer();
+        }
+
+        return {getCurrentPlayer, getTurnCounter, playRound};
+    })();
+
+    return {
+        getBoard: gameboard.getSquares,
+        getPlayers: playerController.getPlayers,
+        getCurrentPlayer: gameController.getCurrentPlayer,
+        getTurnCounter: gameController.getTurnCounter,
+        playRound: gameController.playRound
+    }
+}
