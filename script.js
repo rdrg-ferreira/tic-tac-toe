@@ -10,13 +10,18 @@ function createGame() {
             return {getState, setState};
         }
 
-        for (let i = 0; i < 9; i++) {
-            squares.push(createGameSquare());
-        }
-
         const getSquares = () => squares;
 
-        return {getSquares};
+        const reset = () => {
+            squares.splice(0);
+            for (let i = 0; i < 9; i++) {
+                squares.push(createGameSquare());
+            }
+        }
+
+        reset();
+
+        return {getSquares, reset};
     })();
 
     const playerController = (function () {
@@ -35,7 +40,11 @@ function createGame() {
                 }
             };
 
-            return {name, token, getOccupiedSquares, addOccupiedSquare};
+            const reset = () => {
+                occupiedSquares.splice(0);
+            }
+
+            return {name, token, getOccupiedSquares, addOccupiedSquare, reset};
         }
 
         const players = [createPlayer("Player 1", "x"), createPlayer("Player 2", "o")];
@@ -91,8 +100,20 @@ function createGame() {
             changeCurrentPlayer();
         }
 
-        return {getGameState, getCurrentPlayer, getTurnCounter, playRound};
+        const reset = () => {
+            gameState = "playing";
+            turnCounter = 0;
+            currentPlayer = playerController.getPlayers()[0];
+        }
+
+        return {getGameState, getCurrentPlayer, getTurnCounter, playRound, reset};
     })();
+
+    const reset = () => {
+        gameboard.reset();
+        playerController.getPlayers().forEach(p => p.reset());
+        gameController.reset();
+    }
 
     return {
         getBoard: gameboard.getSquares,
@@ -100,7 +121,8 @@ function createGame() {
         getGameState: gameController.getGameState,
         getCurrentPlayer: gameController.getCurrentPlayer,
         getTurnCounter: gameController.getTurnCounter,
-        playRound: gameController.playRound
+        playRound: gameController.playRound,
+        reset
     }
 }
 
@@ -122,6 +144,9 @@ const screenController = (function () {
         } else if (token === "o") {
             square.classList.add("circle");
             square.textContent = "o";
+        } else {
+            square.classList.remove("cross", "circle");
+            square.textContent = "";
         }
 
         return square;
@@ -163,8 +188,9 @@ const screenController = (function () {
         // TODO
     });
 
-    clearBoardButton.addEventListener("click", e => {
-        // TODO
+    clearBoardButton.addEventListener("click", () => {
+        game.reset();
+        updateScreen();
     });
 
     updateScreen();
