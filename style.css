@@ -38,7 +38,7 @@ main {
     gap: 16px;
 }
 
-button {
+button, input[type="submit"] {
     border: none;
     border-radius: 10px;
     background-color: blue;
@@ -46,7 +46,7 @@ button {
     padding: 8px 16px;
 }
 
-button:hover {
+button:hover, input[type="submit"]:hover {
     filter: brightness(0.8);
 }
 
@@ -79,4 +79,52 @@ button:hover {
 
 .circle {
     color: blue;
+}
+
+dialog[open] {
+    position: fixed;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0px 0px 10px 3px rgba(0,0,0,0.75);
+}
+
+dialog {
+    border-radius: 10px;
+}
+
+form {
+    margin-top: 16px;
+}
+
+input[type="submit"] {
+    margin-top: 12px;
+    font-size: 0.9rem;
+}
+dialog > .wrapper {
+    gap: 8px;
+}
+
+dialog > div > div {
+    font-size: 1.5rem;
+    padding: 16px;
+}
+
+form > div {
+    gap: 8px;
+}
+
+input[type="text"] {
+    padding: 4px 16px;
+    border-radius: 20px;
+}
+
+#close-modal {
+    background-color: white;
+    color: black;
+    height: fit-content;
+}
+
+#close-modal:hover {
+    filter: none;
 }

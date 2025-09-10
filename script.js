@@ -49,9 +49,14 @@ function createGame() {
 
         const players = [createPlayer("Player 1", "x"), createPlayer("Player 2", "o")];
 
+        const changePlayerNames = (p1Name = "Player 1", p2Name = "Player 2") => {
+            players[0].name = p1Name;
+            players[1].name = p2Name;
+        }
+
         const getPlayers = () => players;
 
-        return {getPlayers};
+        return {changePlayerNames, getPlayers};
     })();
 
     const gameController = (function () {
@@ -92,6 +97,7 @@ function createGame() {
             if (checkForWin()) {
                 console.log(`${currentPlayer.name} won!`);
                 gameState = "win";
+                return;
             } else if (checkForTie()) {
                 console.log("game is tied");
                 gameState = "tie";
@@ -117,6 +123,7 @@ function createGame() {
 
     return {
         getBoard: gameboard.getSquares,
+        changePlayerNames: playerController.changePlayerNames,
         getPlayers: playerController.getPlayers,
         getGameState: gameController.getGameState,
         getCurrentPlayer: gameController.getCurrentPlayer,
@@ -132,6 +139,9 @@ const screenController = (function () {
     const turnDisplay = document.querySelector("#turn-display");
     const changeNamesButton = document.querySelector("#name-changer");
     const clearBoardButton = document.querySelector("#clear-board");
+    const changePlayerNamesModal = document.querySelector("#change-names-modal");
+    const form = document.querySelector("form");
+    const closeModalButton = document.querySelector("#close-modal");
 
     const createSquareElement = (token, index) => {
         const square = document.createElement("div");
@@ -185,8 +195,21 @@ const screenController = (function () {
     });
 
     changeNamesButton.addEventListener("click", e => {
-        // TODO
+        changePlayerNamesModal.showModal();
     });
+
+    form.addEventListener("submit", e => {
+        e.preventDefault();
+        changePlayerNamesModal.close();
+
+        const data = Object.fromEntries(new FormData(form).entries());
+        const dataValues = Object.values(data).map(x => x === "" ? undefined : x);
+        game.changePlayerNames(dataValues[0], dataValues[1]);
+        
+        updateScreen();
+    });
+
+    closeModalButton.addEventListener("click", () => changePlayerNamesModal.close());
 
     clearBoardButton.addEventListener("click", () => {
         game.reset();

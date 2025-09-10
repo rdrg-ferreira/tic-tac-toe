@@ -16,6 +16,28 @@
             <button id="clear-board">Clear board</button>
         </div>
     </main>
+
+    <dialog id="change-names-modal">
+        <div class="wrapper flex">
+            <div>
+                Change player's names:
+                <form method="dialog">
+                    <div class="flex flex-column">
+                        <div class="input">
+                            <label for="p1-input">Player 1</label>
+                            <input type="text" id="p1-input" name="p1">
+                        </div>
+                        <div class="input">
+                            <label for="p2-input">Player 2</label>
+                            <input type="text" id="p2-input" name="p2">
+                        </div>
+                    </div>
+                    <input type="submit" value="Change names" formmethod="dialog">
+                </form>
+            </div>
+            <button id="close-modal" autofocus>x</button>
+        </div>
+    </dialog>
     <script src="./script.js"></script>
 </body>
 </html>
